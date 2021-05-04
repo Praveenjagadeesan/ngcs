@@ -1,0 +1,4 @@
+---
+# handlers file for /home/automation/plays/roles/sample-apache
+- name: restart httpd
+  service: name=httpd state=restarted

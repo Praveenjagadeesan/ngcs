@@ -1,0 +1,5 @@
+---
+- name: Copy httpd configuration file
+  copy: src=files/httpd.conf dest=/etc/httpd/conf/httpd.conf
+  notify:
+  - restart httpd

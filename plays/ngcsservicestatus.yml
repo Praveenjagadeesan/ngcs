@@ -1,0 +1,35 @@
+---
+- name: ngcs app services restart
+  hosts: ngcsservers
+  remote_user: root
+  tasks:		
+    - name: Start DB service, if not started
+      service:
+        name: httpd
+        state: started
+      notify:
+        - Start App Service
+        - Start Web Service
+
+    - name: Start App service, if not started
+      systemd:
+        name: tomcat.service
+        state: started
+      notify:
+        - Start Web Service
+
+    - name: Start Web service, if not started
+      service:
+        name: httpd
+        state: started
+  
+  handlers:
+    - name: Start App Service
+      systemd:
+        name: tomcat.service
+        state: restarted
+  
+    - name: Start Web Service
+      service:
+        name: httpd 
+        state: restarted

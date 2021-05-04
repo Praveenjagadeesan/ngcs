@@ -1,0 +1,56 @@
+---
+- name: Create users in web servers
+  hosts: webservers
+  remote_user: root
+  vars_files: secret.yml
+  pre_tasks:
+    - name: include users
+      include_vars: "user_list.yml"
+      tags: ["always"]
+
+    - name: include secrets
+      include_vars: "secret.yml"
+      tags: ["always"]
+  
+  tasks:
+  - name: Create user ID starts with 1, group wheel, /bin/bash, pwd SHA512 and ssh
+    user: name={{ item.username }} shell=/bin/bash createhome=yes comment='Created by Ansible'
+    password: {{ user_password | password_hash('sha512') }}
+    home: "/home/{{ item.username }}"
+    generate_ssh_key: yes
+    ssh_key_type: rsa
+    ssh_key_bits: 4096
+    ssh_key_file: .ssh/id_rsa
+    groups: wheel
+    append: yes
+    with_items: '{{users}}'
+    when: "{{ item.username }} is regex('^1*')"
+
+
+- name: Create users in db servers
+  hosts: databases
+  remote_user: root
+  pre_tasks:
+    - name: include user_list.yml
+      include_vars: "user_list.yml"
+      tags: ["always"]
+
+    - name: include secret.yml
+      include_vars: "secret.yml"
+      tags: ["always"]
+  
+  tasks:
+  - name: Create user ID starts with 2, group wheel, /bin/bash, pwd SHA512 and ssh
+    user: name={{ item.username }} shell=/bin/bash createhome=yes comment='Created by Ansible'
+    password: {{ user_password | password_hash('sha512') }}
+    createhome: yes
+    home: "/home/{{ item.username }}"
+    generate_ssh_key: yes
+    ssh_key_type: rsa
+    ssh_key_bits: 4096
+    ssh_key_file: .ssh/id_rsa
+    groups: wheel
+    append: yes
+    with_items: '{{users}}'
+    when: "{{ item.username }} is regex('^2*')"
+
