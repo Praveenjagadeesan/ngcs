@@ -5,7 +5,7 @@
   tasks:		
     - name: Start DB service, if not started
       service:
-        name: httpd
+        name: postgresql
         state: started
       notify:
         - Start App Service
